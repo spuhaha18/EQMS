@@ -1,33 +1,28 @@
-import { Model, DataTypes, Optional } from 'sequelize';
-import { sequelize } from './index';
-import User from './User';
+// backend/src/models/AuditTrail.ts
+import { DataTypes, Model } from "sequelize";
+import sequelize from "../config/database";
 
-interface AuditTrailAttributes {
+export interface AuditTrailAttributes {
   id: string;
   userId: string;
   action: string;
-  entityType: string;
-  entityId: string;
-  oldValues: any;
-  newValues: any;
-  ipAddress: string;
-  userAgent: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  targetType: string;
+  targetId: string;
+  details: string;
+  timestamp: Date;
 }
 
-interface AuditTrailCreationAttributes extends Optional<AuditTrailAttributes, 'id'> {}
-
-class AuditTrail extends Model<AuditTrailAttributes, AuditTrailCreationAttributes> implements AuditTrailAttributes {
+class AuditTrail
+  extends Model<AuditTrailAttributes>
+  implements AuditTrailAttributes
+{
   public id!: string;
   public userId!: string;
   public action!: string;
-  public entityType!: string;
-  public entityId!: string;
-  public oldValues!: any;
-  public newValues!: any;
-  public ipAddress!: string;
-  public userAgent!: string;
+  public targetType!: string;
+  public targetId!: string;
+  public details!: string;
+  public timestamp!: Date;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -42,49 +37,33 @@ AuditTrail.init(
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
-      references: {
-        model: 'users',
-        key: 'id',
-      },
     },
     action: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    entityType: {
+    targetType: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    entityId: {
+    targetId: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    oldValues: {
-      type: DataTypes.JSONB,
-      allowNull: true,
-    },
-    newValues: {
-      type: DataTypes.JSONB,
-      allowNull: true,
-    },
-    ipAddress: {
-      type: DataTypes.STRING,
+    details: {
+      type: DataTypes.TEXT,
       allowNull: false,
     },
-    userAgent: {
-      type: DataTypes.STRING,
+    timestamp: {
+      type: DataTypes.DATE,
       allowNull: false,
     },
   },
   {
     sequelize,
-    modelName: 'AuditTrail',
-    tableName: 'audit_trails',
+    tableName: "audit_trails",
     timestamps: true,
   }
 );
-
-// 관계 설정
-AuditTrail.belongsTo(User, { foreignKey: 'userId' });
 
 export default AuditTrail;

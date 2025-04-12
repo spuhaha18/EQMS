@@ -1,48 +1,29 @@
-import { Model, DataTypes, Optional } from 'sequelize';
-import { sequelize } from './index';
-import bcrypt from 'bcryptjs';
-import Department from './Department';
+// backend/src/models/User.ts
+import { DataTypes, Model } from "sequelize";
+import sequelize from "../config/database";
 
-// 사용자 역할 정의
-export enum UserRole {
-  SUPER_ADMIN = 'Super admin',
-  LOCAL_ADMIN = 'Local admin',
-  QA_ADMIN = 'QA admin',
-  QA = 'QA',
-  USER = 'User'
-}
-
-interface UserAttributes {
+export interface UserAttributes {
   id: string;
   username: string;
   password: string;
   name: string;
   departmentId: string;
   email: string;
-  role: UserRole;
+  role: string;
   isApproved: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
 }
 
-interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'isApproved'> {}
-
-class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+class User extends Model<UserAttributes> implements UserAttributes {
   public id!: string;
   public username!: string;
   public password!: string;
   public name!: string;
   public departmentId!: string;
   public email!: string;
-  public role!: UserRole;
+  public role!: string;
   public isApproved!: boolean;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
-
-  // 비밀번호 확인 메소드
-  public async validatePassword(password: string): Promise<boolean> {
-    return bcrypt.compare(password, this.password);
-  }
 }
 
 User.init(
@@ -68,23 +49,16 @@ User.init(
     departmentId: {
       type: DataTypes.UUID,
       allowNull: false,
-      references: {
-        model: 'departments',
-        key: 'id',
-      },
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
-      validate: {
-        isEmail: true,
-      },
     },
     role: {
-      type: DataTypes.ENUM(...Object.values(UserRole)),
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: UserRole.USER,
+      defaultValue: "USER",
     },
     isApproved: {
       type: DataTypes.BOOLEAN,
@@ -94,28 +68,9 @@ User.init(
   },
   {
     sequelize,
-    modelName: 'User',
-    tableName: 'users',
+    tableName: "users",
     timestamps: true,
-    hooks: {
-      // 비밀번호 해싱 후크
-      beforeCreate: async (user) => {
-        if (user.password) {
-          const salt = await bcrypt.genSalt(10);
-          user.password = await bcrypt.hash(user.password, salt);
-        }
-      },
-      beforeUpdate: async (user) => {
-        if (user.changed('password')) {
-          const salt = await bcrypt.genSalt(10);
-          user.password = await bcrypt.hash(user.password, salt);
-        }
-      },
-    },
   }
 );
-
-// 관계 설정
-User.belongsTo(Department, { foreignKey: 'departmentId' });
 
 export default User;

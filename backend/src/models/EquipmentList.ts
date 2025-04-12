@@ -1,47 +1,52 @@
-import { Model, DataTypes, Optional } from 'sequelize';
-import { sequelize } from './index';
-import MasterList from './MasterList';
-import Department from './Department';
+// backend/src/models/EquipmentList.ts
+import { DataTypes, Model, Optional } from "sequelize";
+import sequelize from "../config/database";
+import MasterList from "./MasterList";
+import Department from "./Department";
 
-interface EquipmentListAttributes {
-  id: string;
+export interface EquipmentListAttributes {
+  UniqueID: string;
   status: string;
-  masterListId: string;
+  masterCode: string;
   departmentId: string;
-  gxpImportanceEvaluationResult: string;
+  gxpImportance: string;
   group: string;
   equipmentCode: string;
-  sopCreation: boolean;
-  calibrationQualificationEvaluation: boolean;
-  equipmentUsageRecordCreation: boolean;
-  calibrationQualification: string;
-  qualificationEvaluationCycle: number;
+  sopCreated: boolean;
+  calibrationQualificationRequired: boolean;
+  equipmentRecordRequired: boolean;
+  calibrationType: string;
+  qualificationPeriod: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-interface EquipmentListCreationAttributes extends Optional<EquipmentListAttributes, 'id'> {}
+interface EquipmentListCreationAttributes
+  extends Optional<EquipmentListAttributes, "UniqueID"> {}
 
-class EquipmentList extends Model<EquipmentListAttributes, EquipmentListCreationAttributes> implements EquipmentListAttributes {
-  public id!: string;
+class EquipmentList
+  extends Model<EquipmentListAttributes, EquipmentListCreationAttributes>
+  implements EquipmentListAttributes
+{
+  public UniqueID!: string;
   public status!: string;
-  public masterListId!: string;
+  public masterCode!: string;
   public departmentId!: string;
-  public gxpImportanceEvaluationResult!: string;
+  public gxpImportance!: string;
   public group!: string;
   public equipmentCode!: string;
-  public sopCreation!: boolean;
-  public calibrationQualificationEvaluation!: boolean;
-  public equipmentUsageRecordCreation!: boolean;
-  public calibrationQualification!: string;
-  public qualificationEvaluationCycle!: number;
+  public sopCreated!: boolean;
+  public calibrationQualificationRequired!: boolean;
+  public equipmentRecordRequired!: boolean;
+  public calibrationType!: string;
+  public qualificationPeriod!: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
 
 EquipmentList.init(
   {
-    id: {
+    UniqueID: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
@@ -49,24 +54,17 @@ EquipmentList.init(
     status: {
       type: DataTypes.STRING,
       allowNull: false,
+      defaultValue: "사용중",
     },
-    masterListId: {
-      type: DataTypes.UUID,
+    masterCode: {
+      type: DataTypes.STRING,
       allowNull: false,
-      references: {
-        model: 'master_lists',
-        key: 'id',
-      },
     },
     departmentId: {
       type: DataTypes.UUID,
       allowNull: false,
-      references: {
-        model: 'departments',
-        key: 'id',
-      },
     },
-    gxpImportanceEvaluationResult: {
+    gxpImportance: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -79,40 +77,47 @@ EquipmentList.init(
       allowNull: false,
       unique: true,
     },
-    sopCreation: {
+    sopCreated: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
     },
-    calibrationQualificationEvaluation: {
+    calibrationQualificationRequired: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
     },
-    equipmentUsageRecordCreation: {
+    equipmentRecordRequired: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
     },
-    calibrationQualification: {
+    calibrationType: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    qualificationEvaluationCycle: {
+    qualificationPeriod: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue: 12, // 기본 12개월
     },
   },
   {
     sequelize,
-    modelName: 'EquipmentList',
-    tableName: 'equipment_lists',
+    tableName: "equipment_list",
     timestamps: true,
   }
 );
 
 // 관계 설정
-EquipmentList.belongsTo(MasterList, { foreignKey: 'masterListId' });
-EquipmentList.belongsTo(Department, { foreignKey: 'departmentId' });
+EquipmentList.belongsTo(MasterList, {
+  foreignKey: "masterCode",
+  targetKey: "masterCode",
+  as: "masterList",
+});
+EquipmentList.belongsTo(Department, {
+  foreignKey: "departmentId",
+  as: "department",
+});
 
 export default EquipmentList;

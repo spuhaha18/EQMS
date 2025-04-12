@@ -1,30 +1,19 @@
+// frontend/src/pages/NotFound.tsx
 import React from "react";
 import { Link } from "react-router-dom";
 
-const NotFound: React.FC = () => {
+const NotFoundPage: React.FC = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full text-center p-6">
-        <h1 className="text-9xl font-bold text-gray-300">404</h1>
-
-        <h2 className="mt-4 text-3xl font-extrabold text-gray-900">
-          페이지를 찾을 수 없습니다
-        </h2>
-        <p className="mt-2 text-base text-gray-600">
-          요청하신 페이지가 존재하지 않거나 이동되었을 수 있습니다.
-        </p>
-
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-block bg-primary-500 text-white font-medium py-2 px-4 rounded-md hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-          >
-            홈으로 돌아가기
-          </Link>
-        </div>
-      </div>
+    <div className="flex flex-col items-center justify-center h-screen">
+      <h1 className="text-3xl font-bold mb-4">
+        404 - 페이지를 찾을 수 없습니다
+      </h1>
+      <p className="mb-6">요청하신 페이지를 찾을 수 없습니다.</p>
+      <Link to="/" className="px-4 py-2 bg-blue-500 text-white rounded">
+        홈으로 돌아가기
+      </Link>
     </div>
   );
 };
 
-export default NotFound;
+export default NotFoundPage;

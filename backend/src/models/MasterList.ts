@@ -1,41 +1,46 @@
-import { Model, DataTypes, Optional } from 'sequelize';
-import { sequelize } from './index';
-import Department from './Department';
-import EquipmentAbbreviation from './EquipmentAbbreviation';
+// backend/src/models/MasterList.ts
+import { DataTypes, Model, Optional } from "sequelize";
+import sequelize from "../config/database";
+import Department from "./Department";
+import EquipmentAbbreviation from "./EquipmentAbbreviation";
 
-interface MasterListAttributes {
-  id: string;
+export interface MasterListAttributes {
+  UniqueID: string;
   status: string;
-  equipmentAbbreviationId: string;
+  equipmentAbbreviation: string;
   serialNumber: string;
   masterCode: string;
   equipmentName: string;
   manufacturer: string;
   modelName: string;
   departmentId: string;
-  managerId: string;
+  responsiblePerson: string;
   installationLocation: string;
-  equipmentSN?: string;
+  equipmentSerialNumber?: string;
   assetNumber?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-interface MasterListCreationAttributes extends Optional<MasterListAttributes, 'id' | 'equipmentSN' | 'assetNumber'> {}
+interface MasterListCreationAttributes
+  extends Optional<MasterListAttributes, "UniqueID"> {}
 
-class MasterList extends Model<MasterListAttributes, MasterListCreationAttributes> implements MasterListAttributes {
-  public id!: string;
+class MasterList
+  extends Model<MasterListAttributes, MasterListCreationAttributes>
+  implements MasterListAttributes
+{
+  public UniqueID!: string;
   public status!: string;
-  public equipmentAbbreviationId!: string;
+  public equipmentAbbreviation!: string;
   public serialNumber!: string;
   public masterCode!: string;
   public equipmentName!: string;
   public manufacturer!: string;
   public modelName!: string;
   public departmentId!: string;
-  public managerId!: string;
+  public responsiblePerson!: string;
   public installationLocation!: string;
-  public equipmentSN?: string;
+  public equipmentSerialNumber?: string;
   public assetNumber?: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -43,7 +48,7 @@ class MasterList extends Model<MasterListAttributes, MasterListCreationAttribute
 
 MasterList.init(
   {
-    id: {
+    UniqueID: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
@@ -51,14 +56,11 @@ MasterList.init(
     status: {
       type: DataTypes.STRING,
       allowNull: false,
+      defaultValue: "사용중",
     },
-    equipmentAbbreviationId: {
-      type: DataTypes.UUID,
+    equipmentAbbreviation: {
+      type: DataTypes.STRING,
       allowNull: false,
-      references: {
-        model: 'equipment_abbreviations',
-        key: 'id',
-      },
     },
     serialNumber: {
       type: DataTypes.STRING,
@@ -84,24 +86,16 @@ MasterList.init(
     departmentId: {
       type: DataTypes.UUID,
       allowNull: false,
-      references: {
-        model: 'departments',
-        key: 'id',
-      },
     },
-    managerId: {
-      type: DataTypes.UUID,
+    responsiblePerson: {
+      type: DataTypes.STRING,
       allowNull: false,
-      references: {
-        model: 'users',
-        key: 'id',
-      },
     },
     installationLocation: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    equipmentSN: {
+    equipmentSerialNumber: {
       type: DataTypes.STRING,
       allowNull: true,
     },
@@ -112,14 +106,20 @@ MasterList.init(
   },
   {
     sequelize,
-    modelName: 'MasterList',
-    tableName: 'master_lists',
+    tableName: "master_list",
     timestamps: true,
   }
 );
 
 // 관계 설정
-MasterList.belongsTo(Department, { foreignKey: 'departmentId' });
-MasterList.belongsTo(EquipmentAbbreviation, { foreignKey: 'equipmentAbbreviationId' });
+MasterList.belongsTo(Department, {
+  foreignKey: "departmentId",
+  as: "department",
+});
+MasterList.belongsTo(EquipmentAbbreviation, {
+  foreignKey: "equipmentAbbreviation",
+  targetKey: "abbreviation",
+  as: "equipmentAbbreviation",
+});
 
 export default MasterList;
